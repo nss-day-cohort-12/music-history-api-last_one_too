@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using MusicHistoryAPI.Models;
-
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace MusicHistoryAPI.Controllers
 {
@@ -23,34 +24,133 @@ namespace MusicHistoryAPI.Controllers
 
         // GET: api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var album = from a in _context.Album
+                        select a;
+
+            if (album == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(album);
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id}", Name = "GetAlbumById")]
+        public IActionResult Get(int id)
         {
-            return "value";
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            Album album = _context.Album.Single(m => m.AlbumId == id);
+
+            if (album == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(album);
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public IActionResult Post([FromBody]Album album)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.Album.Add(album);
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                if (AlbumExists(album.AlbumId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return CreatedAtRoute("GetAlbumById", new { id = album.AlbumId }, album);
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromBody]Album album)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != album.AlbumId)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(album).State = EntityState.Modified;
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AlbumExists(album.AlbumId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            Album album = _context.Album.Single(a => a.AlbumId == id);
+            if (album == null)
+            {
+                return NotFound();
+            }
+
+            _context.Album.Remove(album);
+            _context.SaveChanges();
+
+            return Ok(album);
+        }
+
+        private bool AlbumExists(int id)
+        {
+            return _context.Album.Count(a => a.AlbumId == id) > 0;
         }
     }
 }
