@@ -9,7 +9,7 @@ namespace MusicHistoryAPI.Models
     {
         public int TrackId { get; set; }
         public int AlbumId { get; set; }
-        public int GenreId { get; set; }
+        public string Genre { get; set; }
         public string Title { get; set; }
         public string Author { get; set; }
     }

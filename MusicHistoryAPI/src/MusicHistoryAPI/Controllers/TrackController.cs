@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using MusicHistoryAPI.Models;
-
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace MusicHistoryAPI.Controllers
 {
@@ -23,34 +24,133 @@ namespace MusicHistoryAPI.Controllers
 
         // GET: api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var track = from a in _context.Track
+                        select a;
+
+            if (track == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(track);
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id}", Name = "GetTrackById")]
+        public IActionResult Get(int id)
         {
-            return "value";
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            Track track = _context.Track.Single(m => m.TrackId == id);
+
+            if (track == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(track);
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public IActionResult Post([FromBody]Track track)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.Track.Add(track);
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                if (TrackExists(track.TrackId))
+                {
+                    return new StatusCodeResult(StatusCodes.Status409Conflict);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return CreatedAtRoute("GetTrackById", new { id = track.TrackId }, track);
         }
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromBody]Track track)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != track.TrackId)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(track).State = EntityState.Modified;
+
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!TrackExists(track.TrackId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new StatusCodeResult(StatusCodes.Status204NoContent);
         }
 
         // DELETE api/values/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            Track track = _context.Track.Single(a => a.TrackId == id);
+            if (track == null)
+            {
+                return NotFound();
+            }
+
+            _context.Track.Remove(track);
+            _context.SaveChanges();
+
+            return Ok(track);
+        }
+
+        private bool TrackExists(int id)
+        {
+            return _context.Track.Count(a => a.TrackId == id) > 0;
         }
     }
 }
