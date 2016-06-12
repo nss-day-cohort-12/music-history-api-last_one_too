@@ -14,6 +14,7 @@ namespace MusicHistoryAPI.Models
         public DateTime CreatedDate { get; set; }
         public string Location { get; set; }
         public string Email { get; set; }
-        public IQueryable<object> FavoriteTracks { get; set; }
+
+        public IQueryable<TrackInfo> FavoriteTracks { get; set; }
     }
 }

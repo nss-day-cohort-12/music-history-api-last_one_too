@@ -32,7 +32,16 @@ namespace MusicHistoryAPI.Controllers
             }
 
             var album = from a in _context.Album
-                        select a;
+                        join ar in _context.Artist
+                        on a.ArtistId equals ar.ArtistId
+                        select new
+                        {
+                            ArtistName = ar.Name,
+                            ArtistId = ar.ArtistId,
+                            AlbumId = a.AlbumId,
+                            AlbumTitle = a.AlbumTitle,
+                            YearReleased = a.YearReleased
+                        };
 
             if (album == null)
             {
@@ -51,7 +60,17 @@ namespace MusicHistoryAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            Album album = _context.Album.Single(m => m.AlbumId == id);
+            var album = (from a in _context.Album
+                         join ar in _context.Artist
+                         on a.ArtistId equals ar.ArtistId
+                         select new
+                         {
+                             ArtistName = ar.Name,
+                             ArtistId = ar.ArtistId,
+                             AlbumId = a.AlbumId,
+                             AlbumTitle = a.AlbumTitle,
+                             YearReleased = a.YearReleased
+                         }).Single(m => m.AlbumId == id);
 
             if (album == null)
             {
