@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using MusicHistoryAPI.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace MusicHistoryAPI.Controllers
 {
@@ -32,26 +32,26 @@ namespace MusicHistoryAPI.Controllers
             }
 
             IQueryable<Customer> customer = from c in _context.Customer
-                                            where c.CustomerId == id
-                                            select new Customer
-                                            {
-                                                CustomerId = c.CustomerId,
-                                                CustomerName = c.CustomerName,
-                                                CreatedDate = c.CreatedDate,
-                                                Location = c.Location,
-                                                Email = c.Email,
-                                                FavoriteTracks = from t in _context.Track
-                                                                 join al in _context.Album on t.AlbumId equals al.AlbumId
-                                                                 join ar in _context.Artist on al.ArtistId equals ar.ArtistId
-                                                                 select new
-                                                                 {
-                                                                     AlbumTitle = al.AlbumTitle,
-                                                                     YearReleased = al.YearReleased,
-                                                                     Author = t.Author,
-                                                                     Genre = t.Genre,
-                                                                     Title = t.Title
-                                                                 }
-                                            };
+                                             where c.CustomerId == id
+                                             select new Customer
+                                             {
+                                                 CustomerId = c.CustomerId,
+                                                 CustomerName = c.CustomerName,
+                                                 CreatedDate = c.CreatedDate,
+                                                 Location = c.Location,
+                                                 Email = c.Email,
+                                                 FavoriteTracks = from t in _context.Track
+                                                                  join al in _context.Album on t.AlbumId equals al.AlbumId
+                                                                  join ar in _context.Artist on al.ArtistId equals ar.ArtistId
+                                                                  select new TrackInfo
+                                                                  {
+                                                                      AlbumTitle = al.AlbumTitle,
+                                                                      YearReleased = al.YearReleased,
+                                                                      Author = t.Author,
+                                                                      Genre = t.Genre,
+                                                                      Title = t.Title
+                                                                  }
+                                             };
 
             if (customer != null)
             {

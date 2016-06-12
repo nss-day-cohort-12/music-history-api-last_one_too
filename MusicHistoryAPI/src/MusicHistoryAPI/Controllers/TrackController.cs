@@ -31,9 +31,19 @@ namespace MusicHistoryAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var track = from a in _context.Track
-                        select a;
-
+            var track = from t in _context.Track
+                        join al in _context.Album 
+                        on t.AlbumId equals al.AlbumId
+                        select new
+                        {
+                            TrackId = t.TrackId,
+                            AlbumId = al.AlbumId,
+                            AlbumTitle = al.AlbumTitle,
+                            Title = t.Title,
+                            Author = t.Author
+                        };
+            
+                                                                 
             if (track == null)
             {
                 return NotFound();
@@ -51,7 +61,17 @@ namespace MusicHistoryAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            Track track = _context.Track.Single(m => m.TrackId == id);
+            var track = (from t in _context.Track
+                          join al in _context.Album
+                          on t.AlbumId equals al.AlbumId
+                          select new
+                          {
+                              TrackId = t.TrackId,
+                              AlbumId = al.AlbumId,
+                              AlbumTitle = al.AlbumTitle,
+                              Title = t.Title,
+                              Author = t.Author
+                          }).Single(m => m.TrackId == id);
 
             if (track == null)
             {
