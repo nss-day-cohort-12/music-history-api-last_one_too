@@ -2,12 +2,13 @@
 
 MusicHistory.controller('SongListController', [
 	'$http', 
-	'songFactory',
+	'SongFactory',
 	'$scope',
 
-	function ($http, songFactory, $scope) {
+	function ($http, SongFactory, $scope) {
 
 		$scope.songsList = [];
+		$scope.test = "test variable";
 
 		$http
 			.get('http://localhost:5000/api/Customers')

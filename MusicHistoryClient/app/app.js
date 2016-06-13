@@ -9,7 +9,7 @@ MusicHistory.config(['$routeProvider',
   function ($routeProvider) {
 	$routeProvider
 		.when('/', {
-			templateUrl: 'partials/song-list.html',
+			templateUrl: 'partials/songList.html',
 			controller: 'SongListController'
 		})
 		.when('/register', {
@@ -19,7 +19,7 @@ MusicHistory.config(['$routeProvider',
     .when("/songs/:songId", {
       templateUrl: "partials/song-brief.html",
       controller: "SongDetailController",
-      resolve: { isAuth }
+      // resolve: { isAuth }
     })
 		.otherwise('/');
   }
