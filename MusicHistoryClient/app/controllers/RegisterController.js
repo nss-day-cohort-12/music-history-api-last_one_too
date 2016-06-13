@@ -26,9 +26,12 @@ MusicHistory.controller('RegisterController', [
 				    	url: "http://localhost:5000/api/Customer",
 				    	method: "POST",
 				    	data: JSON.stringify({
-				    		username: data.alias,
+				    		CustomerId: data.id,
+				    		// full name (not alias)
+				    		CustomerName: data.name,
 				    		location: data.location,
-				    		emailAddress: data.email,
+				    		// no email via twitter
+				    		// emailAddress: data.email,
 				    		createdDate: new Date()
 				    	})
 				    }).then(
