@@ -39,8 +39,8 @@ namespace MusicHistoryAPI
             services.AddCors(options =>
             {
                 options.AddPolicy("AllowDevelopmentEnvironment",
-                    builder => builder
-                    // builder => builder.WithOrigins("http://localhost:8080") used to permit specific url
+                    // builder => builder
+                    builder => builder.WithOrigins("http://localhost:8080")
                         .AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader());
