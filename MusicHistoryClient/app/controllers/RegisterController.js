@@ -3,9 +3,10 @@
 MusicHistory.controller('RegisterController', [
 	'$http', 
 	'$scope',
+	'$location',
 	'AuthFactory',
 
-	function ($http, $scope, authFactory) {
+	function ($http, $scope, $location, authFactory) {
 
 		// main OAuth function
 		$scope.twitterOauth = function () {
@@ -26,34 +27,40 @@ MusicHistory.controller('RegisterController', [
 				    	url: "http://localhost:5000/api/Customer",
 				    	method: "POST",
 				    	data: JSON.stringify({
-				    		CustomerId: data.id,
-				    		// full name (not alias)
-				    		CustomerName: data.name,
-				    		location: data.location,
+				    		// do not attempt to pass id to API
+				    		CustomerName: data.alias,
+				    		Location: data.location,
 				    		// no email via twitter
-				    		// emailAddress: data.email,
-				    		createdDate: new Date()
+				    		Email: null,
+				    		CreatedDate: new Date()
 				    	})
 				    }).then(
 				    response => {
 				    	let customer = response.data[0];
 				    	authFactory.setUser(customer);
 				    	console.log("resolve fired", customer);
+				    	console.log("customer id", customer.CustomerId);
 				    },
 				    response => {
 				    	console.log("reject fired", response);
 
+				    	// let customer = response.config.data;
+				    	let customerAlias = data.alias;
+				    	console.log(`customer: `, customerAlias);
 				    	// Geek has already been created
 				    	if (response.status === 409) {
 				    		$http
-				    			.get(`http://localhost:5000/api/Geek?username=${data.alias}`)
+				    			.get(`http://localhost:5000/api/Customer?CustomerName=${customerAlias}`)
+				    			// .get(`http://localhost:5000/api/Customer?CustomerName=${customerAlias.toString()}`)
+				    			// .get(`http://localhost:5000/api/Customer?CustomerName=${}`)
 				    			.then(
 				    				response => {
-				    					let customer = response.data[0];
-				    					console.log("Found the Geek", customer);
+				    					let customer = response;
+				    					console.log("Customer already exists: ", customer);
 				    					authFactory.setUser(customer)
+				    					$location.path("/");
 				    				},
-				    				response => console.log("Could not find that Geek", response)
+				    				response => console.log("Could not find that Customer", response)
 				    			)
 				    	}
 
