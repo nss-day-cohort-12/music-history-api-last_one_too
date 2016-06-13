@@ -24,7 +24,7 @@ namespace MusicHistoryAPI.Controllers
 
         // GET: api/values
         [HttpGet]
-        public IActionResult Get([FromQuery]int? id)
+        public IActionResult Get([FromQuery]int? id, string customerName)
         {
             if (!ModelState.IsValid)
             {
@@ -32,7 +32,7 @@ namespace MusicHistoryAPI.Controllers
             }
 
             IQueryable<Customer> customer = from c in _context.Customer
-                                             where c.CustomerId == id
+                                             // where c.CustomerId == id
                                              select new Customer
                                              {
                                                  CustomerId = c.CustomerId,
@@ -53,9 +53,14 @@ namespace MusicHistoryAPI.Controllers
                                                                   }
                                              };
 
-            if (customer != null)
+            if (id != null)
             {
                 customer = customer.Where(cus => cus.CustomerId == id);
+            }
+
+            if (customerName != null)
+            {
+                customer = customer.Where(cus => cus.CustomerName == customerName);
             }
 
             if (customer == null)
